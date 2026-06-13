@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
 
 import HomeScreen from "./pages/HomeScreen";
 import AddScreen from "./pages/AddScreen";
+import SettingsScreen from "./pages/SettingsScreen";
 
 export default function App() {
   const [pills, setPills] = useState([]);
@@ -24,36 +26,68 @@ export default function App() {
   }, [pills]);
 
   return (
-    <View style={{ flex: 1 }}>
-
-      {/* TOP NAV */}
-      <View style={{
-        flexDirection: "row",
-        justifyContent: "space-around",
-        paddingTop: 50,
-        paddingBottom: 10,
-        backgroundColor: "#eee"
-      }}>
-        <TouchableOpacity onPress={() => setScreen("home")}>
-          <Text style={{ fontSize: 22 }}>🏠</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setScreen("add")}>
-          <Text style={{ fontSize: 22 }}>➕</Text>
-        </TouchableOpacity>
-      </View>
-
+    <View style={{ flex: 1,  paddingTop: 40 }}>
       {/* SCREENS */}
       {screen === "home" ? (
         <HomeScreen pills={pills} setPills={setPills} />
-      ) : (
+      ) : screen === "add" ? (
         <AddScreen
           pills={pills}
           setPills={setPills}
-          setScreen={setScreen}   // 👈 ADD THIS
+          setScreen={setScreen}
         />
+      ) : (
+        <SettingsScreen />
       )}
 
+      {/* FLOATING BOTTOM NAV */}
+      <View
+        style={{
+          position: "absolute",
+          bottom: 30,
+          alignSelf: "center",
+          flexDirection: "row",
+          backgroundColor: "white",
+          paddingHorizontal: 30,
+          paddingVertical: 15,
+          borderRadius: 999,
+          elevation: 8, // Android shadow
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.15,
+          shadowRadius: 8,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setScreen("home")}
+          style={{ marginHorizontal: 20 }}
+        >
+          <Ionicons
+            name={screen === "home" ? "home" : "home-outline"}
+            size={28}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setScreen("add")}
+          style={{ marginHorizontal: 20 }}
+        >
+          <Ionicons
+            name={screen === "add" ? "add-circle" : "add-circle-outline"}
+            size={28}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setScreen("settings")}
+          style={{ marginHorizontal: 20 }}
+        >
+          <Ionicons
+            name={screen === "settings" ? "settings" : "settings-outline"}
+            size={28}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
