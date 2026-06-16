@@ -31,8 +31,12 @@
     },
     "extra": {
       "eas": {
-        "projectId": "c8e7421f-3ad7-4e41-9efa-226f79ecd822"
+        "projectId": "d040475e-4dd2-42f9-bd41-15846e0437ee"
       }
-    }
+    },
+    "owner": "huijsen",
+    "plugins": [
+      "expo-status-bar"
+    ]
   }
 }
