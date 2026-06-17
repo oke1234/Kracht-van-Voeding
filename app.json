@@ -19,7 +19,8 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-    "android": {
+	"android": {
+      "package": "com.caspr.krachtvvoeding",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
