@@ -1,12 +1,22 @@
 import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity, Text } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Switch } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 export default function AddScreen({ pills, setPills, setScreen }) {
+  const [category, setCategory] = useState(null);
   const [name, setName] = useState("");
+
+  const [isScheduled, setIsScheduled] = useState(true);
+
   const [hour, setHour] = useState("08");
   const [minute, setMinute] = useState("00");
   const [days, setDays] = useState([]);
+
+  const [todoType, setTodoType] = useState("none");
+
+  const [weekNumber, setWeekNumber] = useState("");
+  const [monthNumber, setMonthNumber] = useState("");
+  const [dateValue, setDateValue] = useState("");
 
   const weekDays = ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"];
 
@@ -18,159 +28,214 @@ export default function AddScreen({ pills, setPills, setScreen }) {
     }
   };
 
-  const addPill = () => {
-    const time = `${hour}:${minute}`;
-    if (!name.trim()) return;
+  const addItem = () => {
+    if (!name.trim() || !category) return;
 
-    if (days.length === 0) {
-      alert("Select at least one day");
-      return;
-    }
-
-    const newPill = {
+    let newItem = {
       id: Date.now().toString(),
       name,
-      time,
-      days,
-      taken: false,
+      category,
       completedDates: [],
     };
 
-    setPills([...pills, newPill]);
+    if (isScheduled) {
+      newItem = {
+        ...newItem,
+        type: "scheduled",
+        time: `${hour}:${minute}`,
+        days,
+      };
+    } else {
+      newItem = {
+        ...newItem,
+        type: "todo",
+        todoType,
+        weekNumber: todoType === "week" ? weekNumber : null,
+        monthNumber: todoType === "month" ? monthNumber : null,
+        dueDate: todoType === "date" ? dateValue : null,
+      };
+    }
+
+    setPills([...pills, newItem]);
     setScreen("home");
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#ffffff", padding: 20 }}>
-      
-      {/* Header */}
-      <Text style={{
-        fontSize: 28,
-        fontWeight: "bold",
-        marginTop: 15,
-        marginBottom: 20,
-        color: "#111"
-      }}>
+    <View style={{ flex: 1, backgroundColor: "#fff", padding: 20 }}>
+
+      <Text style={{ fontSize: 26, fontWeight: "bold", marginBottom: 20 }}>
         Nieuw item
       </Text>
 
-      {/* Card */}
-      <View
+      {/* CATEGORY ROW */}
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        {["voeding", "supplement", "overig"].map((c) => (
+          <TouchableOpacity
+            key={c}
+            onPress={() => setCategory(c)}
+            style={{
+              flex: 1,
+              marginHorizontal: 4,
+              padding: 12,
+              backgroundColor: category === c ? "#4CAF50" : "#eee",
+              borderRadius: 10,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontWeight: "600" }}>{c}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* NAME */}
+      <Text style={{ marginTop: 20, marginBottom: 6, color: "#666", fontWeight: "600" }}>Naam</Text>
+      <TextInput
+        value={name}
+        onChangeText={setName}
+        placeholder="Bijv. Vitamine D"
+        placeholderTextColor="#aaa"
         style={{
-          backgroundColor: "white",
-          padding: 18,
-          borderRadius: 22,
-          shadowColor: "#000",
-          shadowOpacity: 0.08,
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 4 },
-          elevation: 4,
-        }}
-      >
-
-        {/* NAME */}
-        <Text style={{ marginBottom: 6, color: "#666", fontWeight: "600" }}>
-          Naam
-        </Text>
-
-        <TextInput
-          placeholder="e.g. Vitamine D"
-          value={name}
-          onChangeText={setName}
-          placeholderTextColor="#aaa"
-          style={{
-            borderWidth: 1,
-            borderColor: "#E6E6E6",
-            borderRadius: 12,
-            padding: 12,
-            marginBottom: 18,
-            backgroundColor: "#FAFAFA"
-          }}
-        />
-
-        {/* TIME */}
-        <Text style={{ marginBottom: 6, color: "#666", fontWeight: "600" }}>
-          Tijd
-        </Text>
-
-        <View style={{
-          flexDirection: "row",
-          marginBottom: 18,
-          backgroundColor: "#FAFAFA",
+          borderWidth: 1,
+          borderColor: "#ddd",
+          padding: 12,
           borderRadius: 12,
-          padding: 6
-        }}>
-          <View style={{ flex: 1 }}>
-            <Picker selectedValue={hour} onValueChange={setHour}>
-              {Array.from({ length: 24 }, (_, i) => {
-                const v = i.toString().padStart(2, "0");
-                return <Picker.Item key={v} label={v} value={v} />;
-              })}
-            </Picker>
+          marginBottom: 20,
+          backgroundColor: "#FAFAFA",
+        }}
+      />
+
+      {/* SWITCH */}
+      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
+        <Text style={{ marginRight: 10 }}>Schema</Text>
+        <Switch value={isScheduled} onValueChange={setIsScheduled} />
+      </View>
+
+      {/* SCHEDULED */}
+      {isScheduled && (
+        <View>
+          <Text style={{ marginBottom: 6, color: "#666", fontWeight: "600" }}>Tijd</Text>
+
+          <View style={{
+            flexDirection: "row",
+            marginBottom: 18,
+            backgroundColor: "#FAFAFA",
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: "#ddd",
+            padding: 6,
+          }}>
+            <View style={{ flex: 1 }}>
+              <Picker selectedValue={hour} onValueChange={setHour}>
+                {Array.from({ length: 24 }, (_, i) => {
+                  const v = i.toString().padStart(2, "0");
+                  return <Picker.Item key={v} label={v} value={v} />;
+                })}
+              </Picker>
+            </View>
+
+            <View style={{ flex: 1 }}>
+              <Picker selectedValue={minute} onValueChange={setMinute}>
+                {Array.from({ length: 60 }, (_, i) => {
+                  const v = i.toString().padStart(2, "0");
+                  return <Picker.Item key={v} label={v} value={v} />;
+                })}
+              </Picker>
+            </View>
           </View>
 
-          <View style={{ flex: 1 }}>
-            <Picker selectedValue={minute} onValueChange={setMinute}>
-              {Array.from({ length: 60 }, (_, i) => {
-                const v = i.toString().padStart(2, "0");
-                return <Picker.Item key={v} label={v} value={v} />;
-              })}
-            </Picker>
+          <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>Dagen</Text>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 18 }}>
+            {weekDays.map((d) => (
+              <TouchableOpacity
+                key={d}
+                onPress={() => toggleDay(d)}
+                style={{
+                  paddingVertical: 8,
+                  paddingHorizontal: 14,
+                  borderRadius: 14,
+                  margin: 4,
+                  backgroundColor: days.includes(d) ? "#4CAF50" : "#EAEAEA",
+                }}
+              >
+                <Text style={{ color: days.includes(d) ? "white" : "#333", fontWeight: "600" }}>
+                  {d}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
+      )}
 
-        {/* DAYS */}
-        <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>
-          Selecteer dagen
-        </Text>
+      {/* TODO */}
+      {!isScheduled && (
+        <View>
+          <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>Planning</Text>
 
-        <View style={{
-          flexDirection: "row",
-          flexWrap: "wrap",
-          marginBottom: 18
-        }}>
-          {weekDays.map((day) => (
+          {["none", "week", "month", "date"].map((t) => (
             <TouchableOpacity
-              key={day}
-              onPress={() => toggleDay(day)}
+              key={t}
+              onPress={() => setTodoType(t)}
               style={{
-                paddingVertical: 8,
-                paddingHorizontal: 14,
-                borderRadius: 14,
-                margin: 4,
-                backgroundColor: days.includes(day) ? "#4CAF50" : "#EAEAEA",
+                padding: 12,
+                marginBottom: 8,
+                backgroundColor: todoType === t ? "#4CAF50" : "#eee",
+                borderRadius: 10,
               }}
             >
-              <Text style={{
-                color: days.includes(day) ? "white" : "#333",
-                fontWeight: "600"
-              }}>
-                {day}
-              </Text>
+              <Text style={{ fontWeight: "600" }}>{t.toUpperCase()}</Text>
             </TouchableOpacity>
           ))}
+
+          {todoType === "week" && (
+            <TextInput
+              value={weekNumber}
+              onChangeText={setWeekNumber}
+              placeholder="Welke week? (bv 12)"
+              keyboardType="numeric"
+              style={{ borderWidth: 1, borderColor: "#ddd", borderRadius: 12, padding: 10, marginTop: 10, backgroundColor: "#FAFAFA" }}
+            />
+          )}
+
+          {todoType === "month" && (
+            <TextInput
+              value={monthNumber}
+              onChangeText={setMonthNumber}
+              placeholder="Welke maand? (1-12)"
+              keyboardType="numeric"
+              style={{ borderWidth: 1, borderColor: "#ddd", borderRadius: 12, padding: 10, marginTop: 10, backgroundColor: "#FAFAFA" }}
+            />
+          )}
+
+          {todoType === "date" && (
+            <TextInput
+              value={dateValue}
+              onChangeText={setDateValue}
+              placeholder="Datum (bv 2026-06-23)"
+              style={{ borderWidth: 1, borderColor: "#ddd", borderRadius: 12, padding: 10, marginTop: 10, backgroundColor: "#FAFAFA" }}
+            />
+          )}
         </View>
+      )}
 
-        {/* BUTTON */}
-        <TouchableOpacity
-          onPress={addPill}
-          style={{
-            backgroundColor: "#111",
-            padding: 15,
-            borderRadius: 14,
-            alignItems: "center",
-            shadowColor: "#000",
-            shadowOpacity: 0.15,
-            shadowRadius: 6,
-            shadowOffset: { width: 0, height: 3 },
-          }}
-        >
-          <Text style={{ color: "white", fontWeight: "700" }}>
-            Opslaan
-          </Text>
-        </TouchableOpacity>
-
-      </View>
+      {/* SAVE */}
+      <TouchableOpacity
+        onPress={addItem}
+        style={{
+          marginTop: 30,
+          backgroundColor: "#111",
+          padding: 14,
+          borderRadius: 12,
+          alignItems: "center",
+          shadowColor: "#000",
+          shadowOpacity: 0.15,
+          shadowRadius: 6,
+          shadowOffset: { width: 0, height: 3 },
+        }}
+      >
+        <Text style={{ color: "white", fontWeight: "700" }}>
+          Opslaan
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
