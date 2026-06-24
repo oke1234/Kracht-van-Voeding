@@ -259,14 +259,14 @@ export default function HomeScreen({ pills, setPills }) {
                 ListHeaderComponent={
                     <>
                         {/* 1. VANDAAG */}
-                        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 12 }}>Vandaag</Text>
+                        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 8 }}>Vandaag</Text>
                         {todayPills.length > 0
                             ? renderGroupedSection(todayPills, true)
                             : <Text style={{ color: "gray", marginBottom: 20 }}>Geen supplementen of voeding vandaag.</Text>
                         }
 
                         {/* 2. TO DO */}
-                        <Text style={{ fontSize: 20, fontWeight: "bold", marginTop: 20, marginBottom: 12 }}>To do</Text>
+                        <Text style={{ fontSize: 20, fontWeight: "bold", marginTop: 20, marginBottom: 8 }}>To do</Text>
                         {todoPills.length > 0
                             ? todoPills.map((item) => renderTodoItem(item))
                             : <Text style={{ color: "gray", marginBottom: 20 }}>Geen taken.</Text>

@@ -68,14 +68,14 @@ export default function AddScreen({ pills, setPills, setScreen }) {
       </Text>
 
       {/* CATEGORY ROW */}
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        {["voeding", "supplement", "overig"].map((c) => (
+      <View style={{ flexDirection: "row" }}>
+        {["voeding", "supplement", "overig"].map((c, index) => (
           <TouchableOpacity
             key={c}
             onPress={() => setCategory(c)}
             style={{
               flex: 1,
-              marginHorizontal: 4,
+              marginRight: index === 2 ? 0 : 5,
               padding: 12,
               backgroundColor: category === c ? "#4CAF50" : "#eee",
               borderRadius: 10,
@@ -144,17 +144,23 @@ export default function AddScreen({ pills, setPills, setScreen }) {
           </View>
 
           <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>Dagen</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 18 }}>
+          <View style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            marginBottom: 0,
+            justifyContent: "space-between"
+          }}>
             {weekDays.map((d) => (
               <TouchableOpacity
                 key={d}
                 onPress={() => toggleDay(d)}
                 style={{
+                  flexBasis: "13%",   // makes 7 fit in a row
                   paddingVertical: 8,
-                  paddingHorizontal: 14,
-                  borderRadius: 14,
-                  margin: 4,
+                  borderRadius: 12,
+                  marginBottom: 8,
                   backgroundColor: days.includes(d) ? "#4CAF50" : "#EAEAEA",
+                  alignItems: "center",
                 }}
               >
                 <Text style={{ color: days.includes(d) ? "white" : "#333", fontWeight: "600" }}>
@@ -171,7 +177,7 @@ export default function AddScreen({ pills, setPills, setScreen }) {
         <View>
           <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>Planning</Text>
 
-          {["none", "week", "month", "date"].map((t) => (
+          {["Geen", "Week", "Maand", "Datum"].map((t) => (
             <TouchableOpacity
               key={t}
               onPress={() => setTodoType(t)}
@@ -182,11 +188,11 @@ export default function AddScreen({ pills, setPills, setScreen }) {
                 borderRadius: 10,
               }}
             >
-              <Text style={{ fontWeight: "600" }}>{t.toUpperCase()}</Text>
+              <Text style={{ fontWeight: "600" }}>{t}</Text>
             </TouchableOpacity>
           ))}
 
-          {todoType === "week" && (
+          {todoType === "Week" && (
             <TextInput
               value={weekNumber}
               onChangeText={setWeekNumber}
@@ -196,7 +202,7 @@ export default function AddScreen({ pills, setPills, setScreen }) {
             />
           )}
 
-          {todoType === "month" && (
+          {todoType === "Maand" && (
             <TextInput
               value={monthNumber}
               onChangeText={setMonthNumber}
@@ -206,7 +212,7 @@ export default function AddScreen({ pills, setPills, setScreen }) {
             />
           )}
 
-          {todoType === "date" && (
+          {todoType === "Datum" && (
             <TextInput
               value={dateValue}
               onChangeText={setDateValue}
@@ -221,7 +227,7 @@ export default function AddScreen({ pills, setPills, setScreen }) {
       <TouchableOpacity
         onPress={addItem}
         style={{
-          marginTop: 30,
+          marginTop: 20,
           backgroundColor: "#111",
           padding: 14,
           borderRadius: 12,
