@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Modal, TextInput } from "reac
 import { MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 
+
 export default function SettingsScreen({ pills, setPills }) {
 
   const [pinVisible, setPinVisible] = React.useState(false);
@@ -28,13 +29,12 @@ export default function SettingsScreen({ pills, setPills }) {
     }
   };
 
-  const deletePill = (id) => {
-    setPills(pills.filter((p) => p.id !== id));
-  };
-
   const confirmDelete = () => {
     if (pin === correctPin) {
-      deletePill(selectedId);
+      setPills((currentPills) =>
+        currentPills.filter((p) => p.id !== selectedId)
+      );
+
       setPin("");
       setPinVisible(false);
       setSelectedId(null);
@@ -45,14 +45,18 @@ export default function SettingsScreen({ pills, setPills }) {
 
   const today = new Date();
 
-  const totalSupplements = pills.length;
+  const scheduledPills = pills.filter(
+    (pill) => pill.type === "scheduled"
+  );
 
-  const totalTaken = pills.reduce(
+  const totalSupplements = scheduledPills.length;
+
+  const totalTaken = scheduledPills.reduce(
     (sum, pill) => sum + (pill.completedDates || []).length,
     0
   );
 
-  const totalScheduled = pills.reduce(
+  const totalScheduled = scheduledPills.reduce(
     (sum, pill) => sum + (pill.days?.length || 0),
     0
   );
@@ -171,7 +175,7 @@ export default function SettingsScreen({ pills, setPills }) {
         </View>
 
         {/* Empty State */}
-        {pills.length === 0 ? (
+        {scheduledPills.length === 0 ? (
           <View
             style={{
               backgroundColor: "white",
@@ -210,7 +214,7 @@ export default function SettingsScreen({ pills, setPills }) {
             </Text>
           </View>
         ) : (
-          pills.map((pill) => {
+          scheduledPills.map((pill) => {
             const last7Days = Array.from(
               { length: 7 },
               (_, index) => {
@@ -269,17 +273,19 @@ export default function SettingsScreen({ pills, setPills }) {
                         {pill.time}
                       </Text>
                       {" op "}
-                      {pill.days.join(", ")}
+                      {(pill.days || []).join(", ")}
                     </Text>
                   </View>
 
                   <TouchableOpacity
                     onPress={() => {
+                      if (pill.type !== "scheduled") return;
+
                       setEditId(pill.id);
-                      const [h, m] = pill.time.split(":");
+                      const [h, m] = (pill.time || "08:00").split(":");
                       setEditHour(h);
                       setEditMinute(m);
-                      setEditDays(pill.days);
+                      setEditDays(pill.days || []);
                       setEditVisible(true);
                     }}
                   >

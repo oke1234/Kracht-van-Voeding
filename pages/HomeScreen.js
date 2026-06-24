@@ -9,6 +9,28 @@ export default function HomeScreen({ pills, setPills }) {
     const [pin, setPin] = React.useState("");
     const [showUpcoming, setShowUpcoming] = React.useState(false);
 
+    const cleanOldTodos = (list) => {
+        const now = Date.now();
+
+        return list.filter((p) => {
+            if (p.type !== "todo") return true;
+            if (!p.completedDates?.length) return true;
+
+            const lastDone = new Date(p.completedDates[p.completedDates.length - 1]).getTime();
+            const diffHours = (now - lastDone) / (1000 * 60 * 60);
+
+            return diffHours < 2;
+        });
+    };    
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setPills((prev) => cleanOldTodos(prev));
+        }, 1000); // check every 1 sec
+
+        return () => clearInterval(interval);
+    }, []);
+
     const correctPin = "1234";
 
     const toggleTaken = (id) => {
@@ -83,8 +105,8 @@ export default function HomeScreen({ pills, setPills }) {
         return "Overig";
     };
 
-    const CATEGORIES = ["Voeding", "Supplementen", "Overig"];
-
+    const CATEGORIES = ["Voeding", "Overig", "Supplementen"];
+    
     const groupByCategory = (list) => {
         return CATEGORIES.map((cat) => ({
             category: cat,
@@ -121,9 +143,6 @@ export default function HomeScreen({ pills, setPills }) {
                     <Text style={{ fontSize: 16, fontWeight: "600", color: isTakenToday ? "#4CAF50" : "#111" }}>
                         {item.time} · {item.name}
                     </Text>
-                    <Text style={{ fontSize: 12, color: "#888" }}>
-                        {isTakenToday ? "Completed" : "Pending"}
-                    </Text>
                 </TouchableOpacity>
             </View>
         );
@@ -153,14 +172,29 @@ export default function HomeScreen({ pills, setPills }) {
                     backgroundColor: isTaken ? "#4CAF50" : "#D0D0D0",
                     marginRight: 12,
                 }} />
-                <TouchableOpacity style={{ flex: 1 }} onPress={() => toggleTaken(item.id)}>
-                    <Text style={{ fontSize: 16, fontWeight: "600", color: isTaken ? "#4CAF50" : "#111" }}>
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => toggleTaken(item.id)}>
+
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+
+                        {/* LEFT: name + time */}
+                        <Text style={{ fontSize: 16, fontWeight: "600", color: isTaken ? "#4CAF50" : "#111" }}>
                         {item.name}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: "#888" }}>
-                        {isTaken ? "Completed" : "Pending"}
-                    </Text>
-                </TouchableOpacity>
+                        </Text>
+
+                        {/* RIGHT: planning info */}
+                        <Text style={{ fontSize: 12, color: "#888" }}>
+                        {item.weekNumber
+                            ? `Week: ${item.weekNumber}`
+                            : item.monthNumber
+                            ? `Maand: ${item.monthNumber}`
+                            : item.dueDate
+                            ? `Datum: ${item.dueDate}`
+                            : ""}
+                        </Text>
+
+                    </View>
+
+                    </TouchableOpacity>
             </View>
         );
     };
@@ -174,8 +208,8 @@ export default function HomeScreen({ pills, setPills }) {
                     fontSize: 13,
                     fontWeight: "700",
                     color: "#888",
-                    marginBottom: 8,
-                    marginTop: 4,
+                    marginBottom: 6,
+                    marginTop: 3,
                     textTransform: "uppercase",
                     letterSpacing: 0.8,
                 }}>
@@ -184,8 +218,8 @@ export default function HomeScreen({ pills, setPills }) {
                 {group.items.map((item) => (
                     <View key={item.id}>
                         {showDays && item.days?.length > 0 && (
-                            <Text style={{ fontSize: 11, color: "#aaa", marginLeft: 4, marginBottom: 3 }}>
-                                📅 {item.days.join(", ")}
+                            <Text style={{ fontSize: 12, color: "#aaa", marginBottom: 1 }}>
+                                Aankomend op: {item.days.join(", ")}
                             </Text>
                         )}
                         {renderScheduledItem(item, canToggle)}
