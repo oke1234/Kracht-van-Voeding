@@ -50,9 +50,9 @@ export default function AddScreen({ pills, setPills, setScreen }) {
         ...newItem,
         type: "todo",
         todoType,
-        weekNumber: todoType === "week" ? weekNumber : null,
-        monthNumber: todoType === "month" ? monthNumber : null,
-        dueDate: todoType === "date" ? dateValue : null,
+        weekNumber: todoType === "Week" ? weekNumber : null,
+        monthNumber: todoType === "Maand" ? monthNumber : null,
+        dueDate: todoType === "Datum" ? dateValue : null,
       };
     }
 

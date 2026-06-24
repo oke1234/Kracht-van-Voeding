@@ -125,7 +125,7 @@ export default function HomeScreen({ pills, setPills }) {
                     backgroundColor: "white",
                     padding: 15,
                     borderRadius: 16,
-                    marginBottom: 12,
+                    marginBottom: 5,
                     shadowColor: "#000",
                     shadowOpacity: 0.08,
                     shadowRadius: 8,
@@ -159,7 +159,7 @@ export default function HomeScreen({ pills, setPills }) {
                     backgroundColor: "white",
                     padding: 15,
                     borderRadius: 16,
-                    marginBottom: 12,
+                    marginBottom: 5,
                     shadowColor: "#000",
                     shadowOpacity: 0.08,
                     shadowRadius: 8,
@@ -203,13 +203,13 @@ export default function HomeScreen({ pills, setPills }) {
         const groups = groupByCategory(pillList);
         if (groups.length === 0) return null;
         return groups.map((group) => (
-            <View key={group.category} style={{ marginBottom: 8 }}>
+            <View key={group.category} style={{ marginBottom: 3 }}>
                 <Text style={{
                     fontSize: 13,
                     fontWeight: "700",
                     color: "#888",
-                    marginBottom: 6,
-                    marginTop: 3,
+                    marginBottom: 4,
+                    marginTop: 10,
                     textTransform: "uppercase",
                     letterSpacing: 0.8,
                 }}>
@@ -261,7 +261,16 @@ export default function HomeScreen({ pills, setPills }) {
                         {/* 1. VANDAAG */}
                         <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 8 }}>Vandaag</Text>
                         {todayPills.length > 0
-                            ? renderGroupedSection(todayPills, true)
+                            ? renderGroupedSection(
+                                [...todayPills].sort((a, b) => {
+                                    const toMinutes = (t) => {
+                                        const [h, m] = (t || "00:00").split(":").map(Number);
+                                        return h * 60 + m;
+                                    };
+                                    return toMinutes(a.time) - toMinutes(b.time);
+                                }),
+                                true
+                            )
                             : <Text style={{ color: "gray", marginBottom: 20 }}>Geen supplementen of voeding vandaag.</Text>
                         }
 
