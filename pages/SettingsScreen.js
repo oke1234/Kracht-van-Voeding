@@ -13,6 +13,8 @@ export default function SettingsScreen({ pills, setPills }) {
   const [editVisible, setEditVisible] = React.useState(false);
   const [editId, setEditId] = React.useState(null);
 
+  const [editMode, setEditMode] = React.useState(false);
+
   const [editHour, setEditHour] = React.useState("08");
   const [editMinute, setEditMinute] = React.useState("00");
   const [editDays, setEditDays] = React.useState([]);
@@ -86,17 +88,28 @@ export default function SettingsScreen({ pills, setPills }) {
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
-      <Text
-        style={{
-          fontSize: 28,
-          fontWeight: "bold",
-          marginTop: 15,
-          marginBottom: 20,
-          marginLeft: 5,
-        }}
-      >
-        Overzicht
-      </Text>
+      <View style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: 15,
+        marginBottom: 20,
+      }}>
+        <Text style={{ fontSize: 28, fontWeight: "bold", marginLeft: 5 }}>
+          Overzicht
+        </Text>
+
+        <TouchableOpacity
+          onPress={() => setEditMode(!editMode)}
+          style={{ flexDirection: "row", alignItems: "center", marginRight: 5 }}
+        >
+          <MaterialIcons
+            name={editMode ? "check" : "menu"}
+            size={22}
+            color="grey"
+          />
+        </TouchableOpacity>
+      </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Progress Card */}
@@ -277,38 +290,34 @@ export default function SettingsScreen({ pills, setPills }) {
                     </Text>
                   </View>
 
-                  <TouchableOpacity
-                    onPress={() => {
-                      if (pill.type !== "scheduled") return;
-
-                      setEditId(pill.id);
-                      const [h, m] = (pill.time || "08:00").split(":");
-                      setEditHour(h);
-                      setEditMinute(m);
-                      setEditDays(pill.days || []);
-                      setEditVisible(true);
-                    }}
-                  >
-                    <MaterialIcons name="edit" size={22} color="grey" />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => {
-                      setSelectedId(pill.id);
-                      setPinVisible(true);
-                    }}
-                    style={{ padding: 6 }}
-                  >
-                    <Text
-                      style={{
-                        color: "#ff0400",
-                        fontSize: 20,
-                        opacity: 0.6,
+                  {editMode && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setEditId(pill.id);
+                        const [h, m] = (pill.time || "08:00").split(":");
+                        setEditHour(h);
+                        setEditMinute(m);
+                        setEditDays(pill.days || []);
+                        setEditVisible(true);
                       }}
                     >
-                      ✕
-                    </Text>
-                  </TouchableOpacity>
+                      <MaterialIcons name="edit" size={22} color="grey" />
+                    </TouchableOpacity>
+                  )}
+
+                  {editMode && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSelectedId(pill.id);
+                        setPinVisible(true);
+                      }}
+                      style={{ padding: 6 }}
+                    >
+                      <Text style={{ color: "#ff0400", fontSize: 20, opacity: 0.6 }}>
+                        ✕
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
 
 
