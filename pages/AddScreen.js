@@ -29,7 +29,35 @@ export default function AddScreen({ pills, setPills, setScreen }) {
   };
 
   const addItem = () => {
-    if (!name.trim() || !category) return;
+    if (!category) {
+      alert("Selecteer een categorie");
+      return;
+    }
+
+    if (!name.trim()) {
+      alert("Vul een naam in");
+      return;
+    }
+
+    if (isScheduled && days.length === 0) {
+      alert("Selecteer minstens één dag");
+      return;
+    }
+
+    if (!isScheduled && todoType === "Week" && !weekNumber) {
+      alert("Vul een weeknummer in");
+      return;
+    }
+
+    if (!isScheduled && todoType === "Maand" && !monthNumber) {
+      alert("Vul een maandnummer in");
+      return;
+    }
+
+    if (!isScheduled && todoType === "Datum" && !dateValue) {
+      alert("Vul een datum in");
+      return;
+    }
 
     let newItem = {
       id: Date.now().toString(),

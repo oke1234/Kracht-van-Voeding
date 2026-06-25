@@ -259,7 +259,7 @@ export default function HomeScreen({ pills, setPills }) {
                 ListHeaderComponent={
                     <>
                         {/* 1. VANDAAG */}
-                        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 8 }}>Vandaag</Text>
+                        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 0 }}>Vandaag</Text>
                         {todayPills.length > 0
                             ? renderGroupedSection(
                                 [...todayPills].sort((a, b) => {
@@ -275,7 +275,7 @@ export default function HomeScreen({ pills, setPills }) {
                         }
 
                         {/* 2. TO DO */}
-                        <Text style={{ fontSize: 20, fontWeight: "bold", marginTop: 20, marginBottom: 8 }}>To do</Text>
+                        <Text style={{ fontSize: 20, fontWeight: "bold", marginTop: 20, marginBottom: 5 }}>To do</Text>
                         {todoPills.length > 0
                             ? todoPills.map((item) => renderTodoItem(item))
                             : <Text style={{ color: "gray", marginBottom: 20 }}>Geen taken.</Text>
