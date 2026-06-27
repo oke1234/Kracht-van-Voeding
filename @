@@ -32,10 +32,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "d040475e-4dd2-42f9-bd41-15846e0437ee"
       }
     },
-    "owner": "huijsen",
+    "owner": "caspr",
     "plugins": [
       "expo-status-bar"
     ]
