@@ -19,7 +19,7 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-	"android": {
+    "android": {
       "package": "com.caspr.krachtvvoeding",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -32,10 +32,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "d040475e-4dd2-42f9-bd41-15846e0437ee"
+        "projectId": "63f58430-f233-4c6a-9e21-0e39a80bc3f5"
       }
     },
-    "owner": "huijsen",
+    "owner": "caspr",
     "plugins": [
       "expo-status-bar"
     ]
