@@ -86,6 +86,26 @@ export default function SettingsScreen({ pills, setPills }) {
           Math.round((totalTaken / totalScheduled) * 100)
         );
 
+  const normalizeCategory = (cat) => {
+    if (!cat) return "Overig";
+
+    const lower = cat.toLowerCase();
+
+    if (lower === "voeding") return "Voeding";
+    if (lower === "supplement") return "Supplementen";
+
+    return "Overig";
+  };
+
+  const CATEGORIES = ["Voeding", "Overig", "Supplementen"];
+
+  const groupedScheduled = CATEGORIES.map((cat) => ({
+    category: cat,
+    items: scheduledPills.filter(
+      (p) => normalizeCategory(p.category) === cat
+    ),
+  })).filter((g) => g.items.length > 0);
+
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <View style={{
@@ -227,32 +247,48 @@ export default function SettingsScreen({ pills, setPills }) {
             </Text>
           </View>
         ) : (
-          scheduledPills.map((pill) => {
-            const last7Days = Array.from(
-              { length: 7 },
-              (_, index) => {
-                const date = new Date();
-                date.setDate(today.getDate() - (6 - index));
-                return date;
-              }
-            );
-
-            return (
-              <View
-                key={pill.id}
+          groupedScheduled.map((group) => (
+            <View key={group.category}>
+              <Text
                 style={{
-                  backgroundColor: "white",
-                  padding: 20,
-                  borderRadius: 20,
-                  marginBottom: 16,
-
-                  shadowColor: "#000",
-                  shadowOpacity: 0.08,
-                  shadowRadius: 8,
-                  shadowOffset: { width: 0, height: 3 },
-                  elevation: 3,
+                  fontSize: 13,
+                  fontWeight: "700",
+                  color: "#888",
+                  marginBottom: 6,
+                  marginTop: 10,
+                  marginLeft: 5,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.8,
                 }}
               >
+                {group.category}
+              </Text>
+
+              {group.items.map((pill) => {
+                const last7Days = Array.from(
+                  { length: 7 },
+                  (_, index) => {
+                    const date = new Date();
+                    date.setDate(today.getDate() - (6 - index));
+                    return date;
+                  }
+                );
+
+                return (
+                  <View
+                    key={pill.id}
+                    style={{
+                      backgroundColor: "white",
+                      padding: 15,
+                      borderRadius: 20,
+                      marginBottom: 16,
+                      shadowColor: "#000",
+                      shadowOpacity: 0.08,
+                      shadowRadius: 8,
+                      shadowOffset: { width: 0, height: 3 },
+                      elevation: 3,
+                    }}
+                  >
                 {/* Header */}
                 <View
                   style={{
@@ -379,8 +415,10 @@ export default function SettingsScreen({ pills, setPills }) {
                 </View>
               </View>
             );
-          })
-        )}
+          })}
+          </View>
+        ))
+      )}
       </ScrollView>
 
       <Modal visible={pinVisible} transparent animationType="fade">
