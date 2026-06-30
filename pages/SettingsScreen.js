@@ -138,6 +138,11 @@ export default function SettingsScreen({ pills, setPills }) {
             backgroundColor: "#4CAF50",
             borderRadius: 24,
             padding: 22,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 10,
+            elevation: 5, // Android
           }}
         >
           <Text
