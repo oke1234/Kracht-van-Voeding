@@ -230,7 +230,7 @@ export default function HomeScreen({ pills, setPills }) {
     };
 
     return (
-        <View style={{ flex: 1, padding: 10, paddingTop: 15 }}>
+        <View style={{ flex: 1, padding: 10, paddingTop: 15, backgroundColor: "#fff"}}>
             {/* Header */}
             <View style={{
                 flexDirection: "row", justifyContent: "space-between",

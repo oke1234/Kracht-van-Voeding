@@ -107,7 +107,7 @@ export default function SettingsScreen({ pills, setPills }) {
   })).filter((g) => g.items.length > 0);
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
+    <View style={{ flex: 1, padding: 20, backgroundColor: "#fff" }}>
       <View style={{
         flexDirection: "row",
         justifyContent: "space-between",
