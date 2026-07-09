@@ -28,6 +28,12 @@
       },
       "edgeToEdgeEnabled": true
     },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d040475e-4dd2-42f9-bd41-15846e0437ee"
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
