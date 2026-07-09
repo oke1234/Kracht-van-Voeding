@@ -167,7 +167,9 @@ export default function AddScreen({ pills, setPills, setScreen }) {
               padding: 6,
             }}>
               <View style={{ flex: 1 }}>
-                <Picker selectedValue={hour} onValueChange={setHour}>
+                <Picker selectedValue={hour} onValueChange={setHour} dropdownIconColor="#000000"
+                  style={{ color: "#000000" }}
+                  >
                   {Array.from({ length: 24 }, (_, i) => {
                     const v = i.toString().padStart(2, "0");
                     return <Picker.Item key={v} label={v} value={v} />;
@@ -176,7 +178,10 @@ export default function AddScreen({ pills, setPills, setScreen }) {
               </View>
 
               <View style={{ flex: 1 }}>
-                <Picker selectedValue={minute} onValueChange={setMinute}>
+                <Picker selectedValue={minute} onValueChange={setMinute}
+                  dropdownIconColor="#000000"
+                  style={{ color: "#000000"}}
+                  >
                   {Array.from({ length: 60 }, (_, i) => {
                     const v = i.toString().padStart(2, "0");
                     return <Picker.Item key={v} label={v} value={v} />;

@@ -219,6 +219,7 @@ export default function SettingsScreen({ pills, setPills }) {
               padding: 30,
               borderRadius: 20,
               alignItems: "center",
+              marginTop: 20,
 
               shadowColor: "#000",
               shadowOpacity: 0.08,
