@@ -118,13 +118,23 @@ export default function AddScreen({ pills, setPills, setScreen }) {
               style={{
                 flex: 1,
                 marginRight: index === 2 ? 0 : 5,
-                padding: 12,
+                padding: 10,
                 backgroundColor: category === c ? "#4CAF50" : "#eee",
                 borderRadius: 10,
                 alignItems: "center",
               }}
             >
-              <Text style={{ fontWeight: "600" }}>{c}</Text>
+              <Text
+                style={{
+                  fontWeight: "600",
+                  textAlign: "center",
+                  width: "100%",
+                }}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {c}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -149,7 +159,11 @@ export default function AddScreen({ pills, setPills, setScreen }) {
         {/* SWITCH */}
         <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
           <Text style={{ color: "#666", fontWeight: "600", marginLeft: 1}}>Schema</Text>
-          <Switch value={isScheduled} onValueChange={setIsScheduled} />
+            <Switch
+              style={{ marginLeft: 12 }}
+              value={isScheduled}
+              onValueChange={setIsScheduled}
+            />
         </View>
 
         {/* SCHEDULED */}
