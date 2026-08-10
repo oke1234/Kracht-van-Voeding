@@ -6,27 +6,97 @@ import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "./pages/HomeScreen";
 import AddScreen from "./pages/AddScreen";
 import SettingsScreen from "./pages/SettingsScreen";
+import {
+  getSupplementScheduleKey,
+  syncSupplementNotifications,
+} from "./services/notifications";
 
 export default function App() {
   const [pills, setPills] = useState([]);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [notificationWarning, setNotificationWarning] = useState(null);
   const [screen, setScreen] = useState("home"); // 👈 switch
 
   // LOAD
   useEffect(() => {
     const load = async () => {
-      const data = await AsyncStorage.getItem("PILLS");
-      if (data) setPills(JSON.parse(data));
+      try {
+        const data = await AsyncStorage.getItem("PILLS");
+        if (data) {
+          const storedPills = JSON.parse(data);
+          if (Array.isArray(storedPills)) setPills(storedPills);
+        }
+      } catch (error) {
+        console.warn("Opgeslagen items konden niet worden geladen.", error);
+      } finally {
+        setIsHydrated(true);
+      }
     };
     load();
   }, []);
 
   // SAVE
   useEffect(() => {
-    AsyncStorage.setItem("PILLS", JSON.stringify(pills));
-  }, [pills]);
+    if (!isHydrated) return;
+
+    AsyncStorage.setItem("PILLS", JSON.stringify(pills)).catch((error) => {
+      console.warn("Items konden niet worden opgeslagen.", error);
+    });
+  }, [isHydrated, pills]);
+
+  const supplementScheduleKey = getSupplementScheduleKey(pills);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    let isCurrent = true;
+
+    syncSupplementNotifications(pills)
+      .then(({ permissionGranted, unsupported }) => {
+        if (!isCurrent) return;
+
+        if (unsupported) {
+          setNotificationWarning(null);
+        } else if (!permissionGranted) {
+          setNotificationWarning(
+            "Meldingen staan uit. Schakel ze in via de instellingen van je telefoon om supplementherinneringen te ontvangen."
+          );
+        } else {
+          setNotificationWarning(null);
+        }
+      })
+      .catch((error) => {
+        console.warn("Supplementherinneringen konden niet worden ingesteld.", error);
+        if (isCurrent) {
+          setNotificationWarning(
+            "Supplementherinneringen konden niet worden ingesteld. Probeer de app opnieuw te openen."
+          );
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [isHydrated, supplementScheduleKey]);
 
   return (
     <View style={{ flex: 1,  paddingTop: 40 }}>
+      {notificationWarning && (
+        <View
+          style={{
+            marginHorizontal: 20,
+            marginBottom: 8,
+            padding: 12,
+            borderRadius: 12,
+            backgroundColor: "#FFF3CD",
+          }}
+        >
+          <Text style={{ color: "#664D03", fontSize: 13 }}>
+            {notificationWarning}
+          </Text>
+        </View>
+      )}
+
       {/* SCREENS */}
       {screen === "home" ? (
         <HomeScreen pills={pills} setPills={setPills} />
