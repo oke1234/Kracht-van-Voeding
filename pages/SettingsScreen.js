@@ -15,6 +15,7 @@ export default function SettingsScreen({ pills, setPills }) {
 
   const [editMode, setEditMode] = React.useState(false);
 
+  const [editName, setEditName] = React.useState("");
   const [editHour, setEditHour] = React.useState("08");
   const [editMinute, setEditMinute] = React.useState("00");
   const [editDays, setEditDays] = React.useState([]);
@@ -64,18 +65,38 @@ export default function SettingsScreen({ pills, setPills }) {
   );
 
   const saveEdit = () => {
+    const trimmedName = editName.trim();
+
+    if (!trimmedName) {
+      alert("Vul een naam in");
+      return;
+    }
+
+    if (editDays.length === 0) {
+      alert("Selecteer minstens één dag");
+      return;
+    }
+
     const time = `${editHour}:${editMinute}`;
 
     setPills(
       pills.map((p) =>
         p.id === editId
-          ? { ...p, time, days: editDays }
+          ? { ...p, name: trimmedName, time, days: editDays }
           : p
       )
     );
 
+    closeEdit();
+  };
+
+  const closeEdit = () => {
     setEditVisible(false);
     setEditId(null);
+    setEditName("");
+    setEditHour("08");
+    setEditMinute("00");
+    setEditDays([]);
   };
 
   const completionPercent =
@@ -340,6 +361,7 @@ export default function SettingsScreen({ pills, setPills }) {
                     <TouchableOpacity
                       onPress={() => {
                         setEditId(pill.id);
+                        setEditName(pill.name || "");
                         const [h, m] = (pill.time || "08:00").split(":");
                         setEditHour(h);
                         setEditMinute(m);
@@ -521,7 +543,12 @@ export default function SettingsScreen({ pills, setPills }) {
         </View>
       </Modal> 
 
-      <Modal visible={editVisible} transparent animationType="fade">
+      <Modal
+        visible={editVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeEdit}
+      >
         <View style={{
           flex: 1,
           backgroundColor: "rgba(0,0,0,0.5)",
@@ -535,6 +562,25 @@ export default function SettingsScreen({ pills, setPills }) {
             borderRadius: 22,
             width: "85%"
           }}>
+
+            <Text style={{ marginBottom: 6, color: "#666", fontWeight: "600" }}>
+              Naam
+            </Text>
+
+            <TextInput
+              value={editName}
+              onChangeText={setEditName}
+              placeholder="Bijv. Vitamine D"
+              placeholderTextColor="#aaa"
+              style={{
+                borderWidth: 1,
+                borderColor: "#ddd",
+                padding: 12,
+                borderRadius: 12,
+                marginBottom: 18,
+                backgroundColor: "#FAFAFA",
+              }}
+            />
 
             <Text style={{ marginBottom: 6, color: "#666", fontWeight: "600" }}>
               Tijd
@@ -596,20 +642,39 @@ export default function SettingsScreen({ pills, setPills }) {
               ))}
             </View>
 
-            {/* SAVE */}
-            <TouchableOpacity
-              onPress={saveEdit}
-              style={{
-                backgroundColor: "#111",
-                padding: 15,
-                borderRadius: 14,
-                alignItems: "center"
-              }}
-            >
-              <Text style={{ color: "white", fontWeight: "700" }}>
-                Opslaan
-              </Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                onPress={closeEdit}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#eee",
+                  padding: 15,
+                  borderRadius: 14,
+                  alignItems: "center",
+                  marginRight: 6,
+                }}
+              >
+                <Text style={{ color: "#333", fontWeight: "700" }}>
+                  Annuleren
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={saveEdit}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#111",
+                  padding: 15,
+                  borderRadius: 14,
+                  alignItems: "center",
+                  marginLeft: 6,
+                }}
+              >
+                <Text style={{ color: "white", fontWeight: "700" }}>
+                  Opslaan
+                </Text>
+              </TouchableOpacity>
+            </View>
 
           </View>
         </View>

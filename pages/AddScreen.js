@@ -28,6 +28,10 @@ export default function AddScreen({ pills, setPills, setScreen }) {
     }
   };
 
+  const toggleAllDays = () => {
+    setDays(days.length === weekDays.length ? [] : [...weekDays]);
+  };
+
   const addItem = () => {
     if (!category) {
       alert("Selecteer een categorie");
@@ -204,7 +208,19 @@ export default function AddScreen({ pills, setPills, setScreen }) {
               </View>
             </View>
 
-            <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600", marginLeft: 1  }}>Dagen</Text>
+            <View style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 8,
+            }}>
+              <Text style={{ color: "#666", fontWeight: "600", marginLeft: 1 }}>Dagen</Text>
+              <TouchableOpacity onPress={toggleAllDays} style={{ paddingVertical: 4, paddingHorizontal: 6 }}>
+                <Text style={{ color: "#4CAF50", fontWeight: "700" }}>
+                  {days.length === weekDays.length ? "Deselecteer alles" : "Alle dagen"}
+                </Text>
+              </TouchableOpacity>
+            </View>
             <View style={{
               flexDirection: "row",
               flexWrap: "wrap",

@@ -35,7 +35,8 @@
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/d040475e-4dd2-42f9-bd41-15846e0437ee"
+      "url": "https://u.expo.dev/d040475e-4dd2-42f9-bd41-15846e0437ee",
+      "checkAutomatically": "NEVER"
     },
     "web": {
       "favicon": "./assets/favicon.png"

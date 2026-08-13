@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { ActivityIndicator, View, TouchableOpacity, Text } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import * as Updates from "expo-updates";
 
 import HomeScreen from "./pages/HomeScreen";
 import AddScreen from "./pages/AddScreen";
@@ -15,7 +16,44 @@ export default function App() {
   const [pills, setPills] = useState([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const [notificationWarning, setNotificationWarning] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState("checking");
   const [screen, setScreen] = useState("home"); // 👈 switch
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    const installAvailableUpdate = async () => {
+      if (__DEV__) {
+        setUpdateStatus("ready");
+        return;
+      }
+
+      try {
+        const update = await Updates.checkForUpdateAsync();
+
+        if (!update.isAvailable) {
+          if (isCurrent) setUpdateStatus("ready");
+          return;
+        }
+
+        if (isCurrent) setUpdateStatus("installing");
+        await Updates.fetchUpdateAsync();
+
+        if (isCurrent) {
+          await Updates.reloadAsync();
+        }
+      } catch (error) {
+        console.warn("Controleren op updates is mislukt.", error);
+        if (isCurrent) setUpdateStatus("ready");
+      }
+    };
+
+    installAvailableUpdate();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   // LOAD
   useEffect(() => {
@@ -78,6 +116,25 @@ export default function App() {
       isCurrent = false;
     };
   }, [isHydrated, supplementScheduleKey]);
+
+  if (updateStatus !== "ready") {
+    return (
+      <View style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fff",
+        padding: 24,
+      }}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text style={{ marginTop: 16, fontSize: 16, fontWeight: "600", textAlign: "center" }}>
+          {updateStatus === "installing"
+            ? "Nieuwe update installeren..."
+            : "Controleren op updates..."}
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1,  paddingTop: 40 }}>
