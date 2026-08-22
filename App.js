@@ -8,8 +8,9 @@ import HomeScreen from "./pages/HomeScreen";
 import AddScreen from "./pages/AddScreen";
 import SettingsScreen from "./pages/SettingsScreen";
 import {
-  getSupplementScheduleKey,
-  syncSupplementNotifications,
+  getReminderScheduleKey,
+  initializeNotifications,
+  syncScheduledItemNotifications,
 } from "./services/notifications";
 
 export default function App() {
@@ -82,14 +83,15 @@ export default function App() {
     });
   }, [isHydrated, pills]);
 
-  const supplementScheduleKey = getSupplementScheduleKey(pills);
+  const reminderScheduleKey = getReminderScheduleKey(pills);
 
   useEffect(() => {
     if (!isHydrated) return;
 
     let isCurrent = true;
 
-    syncSupplementNotifications(pills)
+    initializeNotifications()
+      .then(() => syncScheduledItemNotifications(pills))
       .then(({ permissionGranted, unsupported }) => {
         if (!isCurrent) return;
 
@@ -97,17 +99,17 @@ export default function App() {
           setNotificationWarning(null);
         } else if (!permissionGranted) {
           setNotificationWarning(
-            "Meldingen staan uit. Schakel ze in via de instellingen van je telefoon om supplementherinneringen te ontvangen."
+            "Meldingen staan uit. Schakel ze in via de instellingen van je telefoon om geplande herinneringen te ontvangen."
           );
         } else {
           setNotificationWarning(null);
         }
       })
       .catch((error) => {
-        console.warn("Supplementherinneringen konden niet worden ingesteld.", error);
+        console.warn("Geplande herinneringen konden niet worden ingesteld.", error);
         if (isCurrent) {
           setNotificationWarning(
-            "Supplementherinneringen konden niet worden ingesteld. Probeer de app opnieuw te openen."
+            "Geplande herinneringen konden niet worden ingesteld. Probeer de app opnieuw te openen."
           );
         }
       });
@@ -115,7 +117,7 @@ export default function App() {
     return () => {
       isCurrent = false;
     };
-  }, [isHydrated, supplementScheduleKey]);
+  }, [isHydrated, reminderScheduleKey]);
 
   if (updateStatus !== "ready") {
     return (

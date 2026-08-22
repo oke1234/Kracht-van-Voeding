@@ -1,7 +1,20 @@
 import React from "react";
-import { View, Text, TouchableOpacity, ScrollView, Modal, TextInput } from "react-native";
+import {
+  Alert,
+  Linking,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  TextInput,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
+import {
+  getNotificationDiagnostics,
+  scheduleTestNotification,
+} from "../services/notifications";
 
 
 export default function SettingsScreen({ pills, setPills }) {
@@ -14,6 +27,8 @@ export default function SettingsScreen({ pills, setPills }) {
   const [editId, setEditId] = React.useState(null);
 
   const [editMode, setEditMode] = React.useState(false);
+  const [notificationStatus, setNotificationStatus] = React.useState(null);
+  const [testingNotification, setTestingNotification] = React.useState(false);
 
   const [editName, setEditName] = React.useState("");
   const [editHour, setEditHour] = React.useState("08");
@@ -106,6 +121,50 @@ export default function SettingsScreen({ pills, setPills }) {
           100,
           Math.round((totalTaken / totalScheduled) * 100)
         );
+
+  const refreshNotificationStatus = React.useCallback(async () => {
+    try {
+      setNotificationStatus(await getNotificationDiagnostics());
+    } catch (error) {
+      console.warn("Notificatiestatus kon niet worden geladen.", error);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    refreshNotificationStatus();
+  }, [refreshNotificationStatus]);
+
+  const testNotification = async () => {
+    setTestingNotification(true);
+
+    try {
+      const result = await scheduleTestNotification();
+      await refreshNotificationStatus();
+
+      if (result.unsupported) {
+        Alert.alert("Niet beschikbaar", "Meldingen worden niet ondersteund in de webversie.");
+      } else if (!result.permissionGranted) {
+        Alert.alert(
+          "Meldingen staan uit",
+          "Schakel meldingen in via de telefooninstellingen en probeer het opnieuw.",
+          [
+            { text: "Annuleren", style: "cancel" },
+            { text: "Open instellingen", onPress: () => Linking.openSettings() },
+          ]
+        );
+      } else {
+        Alert.alert("Test gepland", "Binnen enkele seconden ontvang je een testmelding.");
+      }
+    } catch (error) {
+      console.warn("Testmelding kon niet worden ingesteld.", error);
+      Alert.alert(
+        "Test mislukt",
+        "De telefoon kon geen testmelding instellen. Controleer de app- en alarmmachtigingen."
+      );
+    } finally {
+      setTestingNotification(false);
+    }
+  };
 
   const normalizeCategory = (cat) => {
     if (!cat) return "Overig";
@@ -228,6 +287,60 @@ export default function SettingsScreen({ pills, setPills }) {
               <Text style={{ color: "rgba(255,255,255,0.9)" }}>
                 Check-ins
               </Text>
+            </View>
+          </View>
+
+          <View
+            style={{
+              marginTop: 18,
+              paddingTop: 16,
+              borderTopWidth: 1,
+              borderTopColor: "rgba(255,255,255,0.35)",
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 16, fontWeight: "700" }}>
+              Meldingen
+            </Text>
+            <Text style={{ color: "rgba(255,255,255,0.9)", marginTop: 4 }}>
+              {notificationStatus?.unsupported
+                ? "Niet beschikbaar op web"
+                : notificationStatus?.permissionGranted
+                  ? `Toegestaan · ${notificationStatus.scheduledCount} herinnering(en) gepland`
+                  : "Geen toestemming"}
+            </Text>
+
+            <View style={{ flexDirection: "row", marginTop: 12 }}>
+              <TouchableOpacity
+                onPress={testNotification}
+                disabled={testingNotification}
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: 10,
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                  opacity: testingNotification ? 0.6 : 1,
+                }}
+              >
+                <Text style={{ color: "#2E7D32", fontWeight: "700" }}>
+                  {testingNotification ? "Testen..." : "Test melding"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => Linking.openSettings()}
+                style={{
+                  borderWidth: 1,
+                  borderColor: "white",
+                  borderRadius: 10,
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                  marginLeft: 10,
+                }}
+              >
+                <Text style={{ color: "white", fontWeight: "700" }}>
+                  Instellingen
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

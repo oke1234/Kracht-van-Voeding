@@ -2,7 +2,8 @@ import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 
 const SUPPLEMENT_REMINDER_KIND = "supplement-reminder";
-const SUPPLEMENT_CHANNEL_ID = "supplement-reminders";
+const SCHEDULED_ITEM_REMINDER_KIND = "scheduled-item-reminder";
+const REMINDER_CHANNEL_ID = "supplement-reminders";
 
 const WEEKDAY_NUMBERS = {
   Zo: 1,
@@ -39,9 +40,9 @@ function hasNotificationPermission(settings) {
 
 async function ensureNotificationPermission() {
   if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync(SUPPLEMENT_CHANNEL_ID, {
-      name: "Supplementherinneringen",
-      description: "Meldingen wanneer het tijd is om een supplement te nemen.",
+    await Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
+      name: "Geplande herinneringen",
+      description: "Meldingen wanneer het tijd is voor een gepland item.",
       importance: Notifications.AndroidImportance.HIGH,
       sound: "default",
       vibrationPattern: [0, 250, 250, 250],
@@ -64,15 +65,71 @@ async function ensureNotificationPermission() {
   return hasNotificationPermission(settings);
 }
 
-function isSupplementReminder(request) {
-  return request.content.data?.kind === SUPPLEMENT_REMINDER_KIND;
+export async function initializeNotifications() {
+  if (Platform.OS === "web") {
+    return { permissionGranted: false, unsupported: true };
+  }
+
+  const permissionGranted = await ensureNotificationPermission();
+  return { permissionGranted, unsupported: false };
 }
 
-function getScheduledSupplements(pills) {
+export async function getNotificationDiagnostics() {
+  if (Platform.OS === "web") {
+    return {
+      permissionGranted: false,
+      scheduledCount: 0,
+      unsupported: true,
+    };
+  }
+
+  const settings = await Notifications.getPermissionsAsync();
+  const requests = await Notifications.getAllScheduledNotificationsAsync();
+
+  return {
+    permissionGranted: hasNotificationPermission(settings),
+    scheduledCount: requests.filter(isScheduledItemReminder).length,
+    unsupported: false,
+  };
+}
+
+export async function scheduleTestNotification() {
+  if (Platform.OS === "web") {
+    return { permissionGranted: false, unsupported: true };
+  }
+
+  const permissionGranted = await ensureNotificationPermission();
+  if (!permissionGranted) {
+    return { permissionGranted: false, unsupported: false };
+  }
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Testmelding Kracht van Voeding",
+      body: "Meldingen werken op dit apparaat.",
+      sound: "default",
+      data: { kind: "notification-test" },
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 2,
+      channelId: REMINDER_CHANNEL_ID,
+    },
+  });
+
+  return { permissionGranted: true, unsupported: false };
+}
+
+function isScheduledItemReminder(request) {
+  return [SUPPLEMENT_REMINDER_KIND, SCHEDULED_ITEM_REMINDER_KIND].includes(
+    request.content.data?.kind
+  );
+}
+
+function getScheduledItems(pills) {
   return pills.filter(
     (pill) =>
       pill.type === "scheduled" &&
-      pill.category?.toLowerCase() === "supplement" &&
       /^\d{2}:\d{2}$/.test(pill.time || "") &&
       pill.days?.length > 0
   );
@@ -84,19 +141,13 @@ async function performSynchronization(pills) {
   }
 
   const existingRequests = await Notifications.getAllScheduledNotificationsAsync();
-  const supplementRequests = existingRequests.filter(isSupplementReminder);
+  const reminderRequests = existingRequests.filter(isScheduledItemReminder);
 
   await Promise.all(
-    supplementRequests.map((request) =>
+    reminderRequests.map((request) =>
       Notifications.cancelScheduledNotificationAsync(request.identifier)
     )
   );
-
-  const supplements = getScheduledSupplements(pills);
-
-  if (supplements.length === 0) {
-    return { permissionGranted: true, scheduledCount: 0, unsupported: false };
-  }
 
   const permissionGranted = await ensureNotificationPermission();
 
@@ -104,24 +155,30 @@ async function performSynchronization(pills) {
     return { permissionGranted: false, scheduledCount: 0, unsupported: false };
   }
 
+  const scheduledItems = getScheduledItems(pills);
+
+  if (scheduledItems.length === 0) {
+    return { permissionGranted: true, scheduledCount: 0, unsupported: false };
+  }
+
   const newIdentifiers = [];
 
   try {
-    for (const supplement of supplements) {
-      const [hour, minute] = supplement.time.split(":").map(Number);
+    for (const item of scheduledItems) {
+      const [hour, minute] = item.time.split(":").map(Number);
 
-      for (const day of supplement.days) {
+      for (const day of item.days) {
         const weekday = WEEKDAY_NUMBERS[day];
         if (!weekday) continue;
 
         const identifier = await Notifications.scheduleNotificationAsync({
           content: {
-            title: "Tijd voor je supplement",
-            body: `Neem ${supplement.name} om ${supplement.time}.`,
+            title: `Tijd voor ${item.name}`,
+            body: `Dit item staat om ${item.time} op je planning.`,
             sound: "default",
             data: {
-              kind: SUPPLEMENT_REMINDER_KIND,
-              supplementId: supplement.id,
+              kind: SCHEDULED_ITEM_REMINDER_KIND,
+              itemId: item.id,
             },
           },
           trigger: {
@@ -129,7 +186,7 @@ async function performSynchronization(pills) {
             weekday,
             hour,
             minute,
-            channelId: SUPPLEMENT_CHANNEL_ID,
+            channelId: REMINDER_CHANNEL_ID,
           },
         });
 
@@ -152,12 +209,13 @@ async function performSynchronization(pills) {
   };
 }
 
-export function getSupplementScheduleKey(pills) {
+export function getReminderScheduleKey(pills) {
   return JSON.stringify(
-    getScheduledSupplements(pills)
-      .map(({ id, name, time, days }) => ({
+    getScheduledItems(pills)
+      .map(({ id, name, category, time, days }) => ({
         id,
         name,
+        category,
         time,
         days: [...days].sort(),
       }))
@@ -165,7 +223,7 @@ export function getSupplementScheduleKey(pills) {
   );
 }
 
-export function syncSupplementNotifications(pills) {
+export function syncScheduledItemNotifications(pills) {
   const synchronize = () => performSynchronization(pills);
   synchronizationQueue = synchronizationQueue.then(synchronize, synchronize);
   return synchronizationQueue;

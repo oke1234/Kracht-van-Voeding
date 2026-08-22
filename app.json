@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Kracht-van-Voeding",
+    "name": "Kracht van Voeding",
     "slug": "Kracht-van-Voeding",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,14 +15,16 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.casper.krachtvvoeding",
+      "buildNumber": "6",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.casper.krachtvoeding",
-      "versionCode": 5,
+      "versionCode": 6,
       "permissions": [
+        "android.permission.POST_NOTIFICATIONS",
         "android.permission.SCHEDULE_EXACT_ALARM"
       ],
       "adaptiveIcon": {
