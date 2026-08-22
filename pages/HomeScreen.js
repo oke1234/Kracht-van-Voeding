@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { TextInput, Modal } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function HomeScreen({ pills, setPills }) {
     const [pinVisible, setPinVisible] = React.useState(false);
@@ -11,19 +12,25 @@ export default function HomeScreen({ pills, setPills }) {
 
     const cleanOldTodos = (list) => {
         const now = Date.now();
+        const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
 
         return list.filter((p) => {
             if (p.type !== "todo") return true;
             if (!p.completedDates?.length) return true;
 
-            const lastDone = new Date(p.completedDates[p.completedDates.length - 1]).getTime();
-            const diffHours = (now - lastDone) / (1000 * 60 * 60);
+            const completedAt = p.completedAt
+                ? new Date(p.completedAt).getTime()
+                : new Date(p.completedDates[p.completedDates.length - 1]).getTime();
 
-            return diffHours < 2;
+            if (!Number.isFinite(completedAt)) return true;
+
+            return now - completedAt < oneDayInMilliseconds;
         });
     };    
 
     React.useEffect(() => {
+        setPills((prev) => cleanOldTodos(prev));
+
         const interval = setInterval(() => {
             setPills((prev) => cleanOldTodos(prev));
         }, 3600000); // check every 1 hour
@@ -43,6 +50,13 @@ export default function HomeScreen({ pills, setPills }) {
                         completedDates: p.completedDates?.includes(today)
                             ? p.completedDates.filter((d) => d !== today)
                             : [...(p.completedDates || []), today],
+                        ...(p.type === "todo"
+                            ? {
+                                completedAt: p.completedDates?.includes(today)
+                                    ? null
+                                    : new Date().toISOString(),
+                            }
+                            : {}),
                     }
                     : p
             )
@@ -83,7 +97,7 @@ export default function HomeScreen({ pills, setPills }) {
             setPin("");
             setPinVisible(false);
         } else {
-            alert("Wrong PIN");
+            alert("Onjuiste pincode");
         }
     };
 
@@ -195,6 +209,25 @@ export default function HomeScreen({ pills, setPills }) {
                     </View>
 
                     </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => {
+                            setSelectedId(item.id);
+                            setPinVisible(true);
+                        }}
+                        accessibilityLabel={`Verwijder ${item.name}`}
+                        style={{
+                            width: 34,
+                            height: 34,
+                            borderRadius: 17,
+                            marginLeft: 8,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "#F5F5F5",
+                        }}
+                    >
+                        <MaterialIcons name="delete-outline" size={18} color="#999" />
+                    </TouchableOpacity>
             </View>
         );
     };
@@ -302,8 +335,8 @@ export default function HomeScreen({ pills, setPills }) {
             <Modal visible={pinVisible} transparent animationType="fade">
                 <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" }}>
                     <View style={{ width: "85%", backgroundColor: "white", borderRadius: 20, padding: 20, elevation: 8 }}>
-                        <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 5 }}>Confirm Delete</Text>
-                        <Text style={{ fontSize: 13, color: "#666", marginBottom: 15 }}>Enter your PIN to remove this item</Text>
+                        <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 5 }}>Item verwijderen</Text>
+                        <Text style={{ fontSize: 13, color: "#666", marginBottom: 15 }}>Voer je pincode in om dit item te verwijderen.</Text>
                         <TextInput
                             value={pin} onChangeText={setPin} keyboardType="numeric" secureTextEntry
                             placeholder="••••" placeholderTextColor="#aaa"
@@ -312,11 +345,11 @@ export default function HomeScreen({ pills, setPills }) {
                         <View style={{ flexDirection: "row" }}>
                             <TouchableOpacity onPress={() => { setPinVisible(false); setPin(""); }}
                                 style={{ flex: 1, padding: 12, borderRadius: 12, backgroundColor: "#eee", marginRight: 8, alignItems: "center" }}>
-                                <Text style={{ fontWeight: "600", color: "#333" }}>Cancel</Text>
+                                <Text style={{ fontWeight: "600", color: "#333" }}>Annuleren</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={confirmDelete}
                                 style={{ flex: 1, padding: 12, borderRadius: 12, backgroundColor: "#ff4d4d", marginLeft: 8, alignItems: "center" }}>
-                                <Text style={{ fontWeight: "600", color: "white" }}>Delete</Text>
+                                <Text style={{ fontWeight: "600", color: "white" }}>Verwijderen</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

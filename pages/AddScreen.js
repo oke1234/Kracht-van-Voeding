@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Switch } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 export default function AddScreen({ pills, setPills, setScreen }) {
   const [category, setCategory] = useState(null);
   const [name, setName] = useState("");
 
-  const [isScheduled, setIsScheduled] = useState(true);
+  const [itemType, setItemType] = useState("scheduled");
+  const isScheduled = itemType === "scheduled";
 
   const [hour, setHour] = useState("08");
   const [minute, setMinute] = useState("00");
   const [days, setDays] = useState([]);
 
-  const [todoType, setTodoType] = useState("none");
+  const [todoType, setTodoType] = useState("Geen");
 
   const [weekNumber, setWeekNumber] = useState("");
   const [monthNumber, setMonthNumber] = useState("");
@@ -93,10 +94,18 @@ export default function AddScreen({ pills, setPills, setScreen }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff", padding: 20 }}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ padding: 20, paddingBottom: 150 }}
+      >
 
-      <Text style={{ fontSize: 26, fontWeight: "bold", marginBottom: 20 }}>
-        Nieuw item
+      <Text style={{ fontSize: 26, fontWeight: "bold", marginBottom: 6 }}>
+        Wat wil je toevoegen?
+      </Text>
+      <Text style={{ color: "#777", marginBottom: 20 }}>
+        Kies eerst of het item terugkomt op vaste momenten of een losse taak is.
       </Text>
 
       <View
@@ -113,7 +122,62 @@ export default function AddScreen({ pills, setPills, setScreen }) {
           elevation: 5, // Android
         }}
       >
+        <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>
+          Soort item
+        </Text>
+        <View style={{ flexDirection: "row", marginBottom: 20 }}>
+          {[
+            {
+              value: "scheduled",
+              title: "Gepland item",
+              description: "Vaste dagen en tijd",
+            },
+            {
+              value: "todo",
+              title: "To-do",
+              description: "Een losse taak",
+            },
+          ].map((option, index) => {
+            const selected = itemType === option.value;
+
+            return (
+              <TouchableOpacity
+                key={option.value}
+                onPress={() => setItemType(option.value)}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                style={{
+                  flex: 1,
+                  minHeight: 78,
+                  padding: 12,
+                  marginRight: index === 0 ? 8 : 0,
+                  borderRadius: 14,
+                  borderWidth: 1,
+                  borderColor: selected ? "#4CAF50" : "#DDD",
+                  backgroundColor: selected ? "#EAF6EB" : "#FAFAFA",
+                  justifyContent: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    color: selected ? "#2E7D32" : "#222",
+                  }}
+                >
+                  {option.title}
+                </Text>
+                <Text style={{ color: "#777", fontSize: 12, marginTop: 4 }}>
+                  {option.description}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
         {/* CATEGORY ROW */}
+        <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>
+          Categorie
+        </Text>
         <View style={{ flexDirection: "row" }}>
           {["voeding", "supplement", "overig"].map((c, index) => (
             <TouchableOpacity
@@ -159,16 +223,6 @@ export default function AddScreen({ pills, setPills, setScreen }) {
             backgroundColor: "#FAFAFA",
           }}
         />
-
-        {/* SWITCH */}
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
-          <Text style={{ color: "#666", fontWeight: "600", marginLeft: 1}}>Schema</Text>
-            <Switch
-              style={{ marginLeft: 12 }}
-              value={isScheduled}
-              onValueChange={setIsScheduled}
-            />
-        </View>
 
         {/* SCHEDULED */}
         {isScheduled && (
@@ -252,7 +306,12 @@ export default function AddScreen({ pills, setPills, setScreen }) {
         {/* TODO */}
         {!isScheduled && (
           <View>
-            <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>Planning</Text>
+            <Text style={{ marginBottom: 3, color: "#666", fontWeight: "600" }}>
+              Wanneer wil je dit doen?
+            </Text>
+            <Text style={{ marginBottom: 10, color: "#999", fontSize: 12 }}>
+              Optioneel — kies Geen als er geen deadline is.
+            </Text>
 
             {["Geen", "Week", "Maand", "Datum"].map((t) => (
               <TouchableOpacity
@@ -321,6 +380,7 @@ export default function AddScreen({ pills, setPills, setScreen }) {
         </TouchableOpacity>
       
       </View>
+      </ScrollView>
     </View>
   );
 }

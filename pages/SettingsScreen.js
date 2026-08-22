@@ -211,7 +211,10 @@ export default function SettingsScreen({ pills, setPills }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 180 }}
+      >
         {/* Progress Card */}
         <View
           style={{
