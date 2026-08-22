@@ -25,7 +25,7 @@ Kracht van Voeding is een lokale tracker voor voeding, supplementen, overige ter
 - geplande items bewerken en met een pincode verwijderen;
 - zeven dagen check-inhistorie bekijken;
 - lokale meldingen voor alle geplande categorieën ontvangen;
-- notificatiestatus bekijken, een testmelding plannen en systeeminstellingen openen.
+- notificatiestatus bekijken en de systeeminstellingen openen.
 
 Buiten scope zijn accounts, backend, cloudsync, delen tussen apparaten, advertenties, analytics en servergestuurde pushmeldingen. Gebruikersdata blijft lokaal.
 
@@ -169,12 +169,12 @@ Opschonen draait direct bij openen van HomeScreen en daarna ieder uur zolang het
 
 ### 8.2 AddScreen — toevoegen
 
-Het scherm vraagt “Wat wil je toevoegen?” en toont twee expliciete keuzekaarten:
+Het scherm gebruikt een compacte, minimalistische typekeuze met twee opties:
 
-- **Gepland item — Vaste dagen en tijd**;
-- **To-do — Een losse taak**.
+- **Gepland item**;
+- **To-do**.
 
-De oude onduidelijke Schema-schakelaar is verwijderd. De gekozen kaart heeft een groene status. Het formulier is scrollbaar en heeft onderruimte voor navigatie en toetsenbord.
+De oude onduidelijke Schema-schakelaar is verwijderd. De gekozen optie heeft een subtiele groene status. Overbodige uitlegtekst is weggelaten, terwijl alle invoervelden en validatie behouden blijven. Het formulier is scrollbaar en heeft onderruimte voor navigatie en toetsenbord.
 
 Daarna kiest de gebruiker categorie en naam. Voor een gepland item zijn categorie, naam en minimaal één dag verplicht; standaardtijd is 08:00. Voor een to-do zijn categorie en naam verplicht. Planning staat standaard op **Geen**. Bij Week, Maand of Datum moet het bijbehorende veld gevuld zijn.
 
@@ -185,8 +185,8 @@ Na opslaan wordt een ID aangemaakt, de centrale lijst bijgewerkt en HomeScreen g
 Overzicht bevat:
 
 - algemene voortgang, aantal geplande items en totaal check-ins;
-- notificatiestatus en aantal geplande herinneringen;
-- testmelding en link naar systeeminstellingen;
+- een compacte notificatieregel met statusbol en Aan/Uit-status;
+- een link naar de systeeminstellingen;
 - geplande items per categorie;
 - zeven kalenderdagen historie per item;
 - bewerken van tijd en dagen;
@@ -234,7 +234,7 @@ Synchronisaties lopen via één promise-wachtrij. Bij een fout worden triggers u
 - iOS accepteert Authorized, Provisional en Ephemeral.
 - Foreground toont banner en lijst en speelt geluid.
 - Geweigerde toestemming toont een waarschuwing.
-- Overzicht kan instellingen openen en na twee seconden een testmelding tonen.
+- Overzicht toont de toestemming als een subtiele statusbol met Aan/Uit en kan de systeeminstellingen openen.
 - Web retourneert `unsupported`.
 
 ## 10. Opslag, privacy en beveiliging
@@ -291,8 +291,8 @@ Lokale meldingen moeten op echte apparaten en bij voorkeur met een release- of d
 
 - Voeding, supplementen en overige geplande items krijgen meldingen; to-do's niet.
 - Wijzigen en verwijderen laten geen oude of dubbele triggers achter.
-- De testknop levert binnen enkele seconden een lokale melding.
-- Status en aantal in Overzicht komen overeen met de OS-planning.
+- De statusbol in Overzicht komt overeen met de OS-toestemming.
+- De instellingenknop opent de systeeminstellingen van de app.
 
 ### Buildkwaliteit
 

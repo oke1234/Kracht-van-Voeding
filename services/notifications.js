@@ -93,33 +93,6 @@ export async function getNotificationDiagnostics() {
   };
 }
 
-export async function scheduleTestNotification() {
-  if (Platform.OS === "web") {
-    return { permissionGranted: false, unsupported: true };
-  }
-
-  const permissionGranted = await ensureNotificationPermission();
-  if (!permissionGranted) {
-    return { permissionGranted: false, unsupported: false };
-  }
-
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "Testmelding Kracht van Voeding",
-      body: "Meldingen werken op dit apparaat.",
-      sound: "default",
-      data: { kind: "notification-test" },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: 2,
-      channelId: REMINDER_CHANNEL_ID,
-    },
-  });
-
-  return { permissionGranted: true, unsupported: false };
-}
-
 function isScheduledItemReminder(request) {
   return [SUPPLEMENT_REMINDER_KIND, SCHEDULED_ITEM_REMINDER_KIND].includes(
     request.content.data?.kind

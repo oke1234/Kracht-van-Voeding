@@ -137,7 +137,8 @@ export default function HomeScreen({ pills, setPills }) {
                     flexDirection: "row",
                     alignItems: "center",
                     backgroundColor: "white",
-                    padding: 15,
+                    paddingHorizontal: 15,
+                    paddingVertical: 8,
                     borderRadius: 16,
                     marginBottom: 5,
                     shadowColor: "#000",
@@ -217,9 +218,9 @@ export default function HomeScreen({ pills, setPills }) {
                         }}
                         accessibilityLabel={`Verwijder ${item.name}`}
                         style={{
-                            width: 34,
-                            height: 34,
-                            borderRadius: 17,
+                            width: 32,
+                            height: 32,
+                            borderRadius: 16,
                             marginLeft: 8,
                             alignItems: "center",
                             justifyContent: "center",

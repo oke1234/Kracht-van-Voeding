@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Alert,
   Linking,
   View,
   Text,
@@ -11,10 +10,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import {
-  getNotificationDiagnostics,
-  scheduleTestNotification,
-} from "../services/notifications";
+import { getNotificationDiagnostics } from "../services/notifications";
 
 
 export default function SettingsScreen({ pills, setPills }) {
@@ -28,7 +24,6 @@ export default function SettingsScreen({ pills, setPills }) {
 
   const [editMode, setEditMode] = React.useState(false);
   const [notificationStatus, setNotificationStatus] = React.useState(null);
-  const [testingNotification, setTestingNotification] = React.useState(false);
 
   const [editName, setEditName] = React.useState("");
   const [editHour, setEditHour] = React.useState("08");
@@ -133,38 +128,6 @@ export default function SettingsScreen({ pills, setPills }) {
   React.useEffect(() => {
     refreshNotificationStatus();
   }, [refreshNotificationStatus]);
-
-  const testNotification = async () => {
-    setTestingNotification(true);
-
-    try {
-      const result = await scheduleTestNotification();
-      await refreshNotificationStatus();
-
-      if (result.unsupported) {
-        Alert.alert("Niet beschikbaar", "Meldingen worden niet ondersteund in de webversie.");
-      } else if (!result.permissionGranted) {
-        Alert.alert(
-          "Meldingen staan uit",
-          "Schakel meldingen in via de telefooninstellingen en probeer het opnieuw.",
-          [
-            { text: "Annuleren", style: "cancel" },
-            { text: "Open instellingen", onPress: () => Linking.openSettings() },
-          ]
-        );
-      } else {
-        Alert.alert("Test gepland", "Binnen enkele seconden ontvang je een testmelding.");
-      }
-    } catch (error) {
-      console.warn("Testmelding kon niet worden ingesteld.", error);
-      Alert.alert(
-        "Test mislukt",
-        "De telefoon kon geen testmelding instellen. Controleer de app- en alarmmachtigingen."
-      );
-    } finally {
-      setTestingNotification(false);
-    }
-  };
 
   const normalizeCategory = (cat) => {
     if (!cat) return "Overig";
@@ -301,50 +264,55 @@ export default function SettingsScreen({ pills, setPills }) {
               borderTopColor: "rgba(255,255,255,0.35)",
             }}
           >
-            <Text style={{ color: "white", fontSize: 16, fontWeight: "700" }}>
-              Meldingen
-            </Text>
-            <Text style={{ color: "rgba(255,255,255,0.9)", marginTop: 4 }}>
-              {notificationStatus?.unsupported
-                ? "Niet beschikbaar op web"
-                : notificationStatus?.permissionGranted
-                  ? `Toegestaan · ${notificationStatus.scheduledCount} herinnering(en) gepland`
-                  : "Geen toestemming"}
-            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text style={{ color: "white", fontSize: 16, fontWeight: "700" }}>
+                Meldingen
+              </Text>
 
-            <View style={{ flexDirection: "row", marginTop: 12 }}>
-              <TouchableOpacity
-                onPress={testNotification}
-                disabled={testingNotification}
-                style={{
-                  backgroundColor: "white",
-                  borderRadius: 10,
-                  paddingHorizontal: 14,
-                  paddingVertical: 10,
-                  opacity: testingNotification ? 0.6 : 1,
-                }}
-              >
-                <Text style={{ color: "#2E7D32", fontWeight: "700" }}>
-                  {testingNotification ? "Testen..." : "Test melding"}
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    width: 9,
+                    height: 9,
+                    borderRadius: 5,
+                    marginRight: 7,
+                    backgroundColor: notificationStatus?.permissionGranted
+                      ? "#B9F6CA"
+                      : "rgba(255,255,255,0.45)",
+                  }}
+                />
+                <Text style={{ color: "white", fontWeight: "600" }}>
+                  {notificationStatus?.unsupported
+                    ? "Niet beschikbaar"
+                    : notificationStatus?.permissionGranted
+                      ? "Aan"
+                      : "Uit"}
                 </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => Linking.openSettings()}
-                style={{
-                  borderWidth: 1,
-                  borderColor: "white",
-                  borderRadius: 10,
-                  paddingHorizontal: 14,
-                  paddingVertical: 10,
-                  marginLeft: 10,
-                }}
-              >
-                <Text style={{ color: "white", fontWeight: "700" }}>
-                  Instellingen
-                </Text>
-              </TouchableOpacity>
+              </View>
             </View>
+
+            <TouchableOpacity
+              onPress={() => Linking.openSettings()}
+              style={{
+                borderWidth: 1,
+                borderColor: "rgba(255,255,255,0.75)",
+                borderRadius: 10,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                marginTop: 12,
+                alignSelf: "flex-start",
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "600" }}>
+                Instellingen
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 

@@ -101,11 +101,8 @@ export default function AddScreen({ pills, setPills, setScreen }) {
         contentContainerStyle={{ padding: 20, paddingBottom: 150 }}
       >
 
-      <Text style={{ fontSize: 26, fontWeight: "bold", marginBottom: 6 }}>
-        Wat wil je toevoegen?
-      </Text>
-      <Text style={{ color: "#777", marginBottom: 20 }}>
-        Kies eerst of het item terugkomt op vaste momenten of een losse taak is.
+      <Text style={{ fontSize: 26, fontWeight: "bold", marginBottom: 20 }}>
+        Nieuw item
       </Text>
 
       <View
@@ -123,19 +120,17 @@ export default function AddScreen({ pills, setPills, setScreen }) {
         }}
       >
         <Text style={{ marginBottom: 8, color: "#666", fontWeight: "600" }}>
-          Soort item
+          Type
         </Text>
         <View style={{ flexDirection: "row", marginBottom: 20 }}>
           {[
             {
               value: "scheduled",
               title: "Gepland item",
-              description: "Vaste dagen en tijd",
             },
             {
               value: "todo",
               title: "To-do",
-              description: "Een losse taak",
             },
           ].map((option, index) => {
             const selected = itemType === option.value;
@@ -148,7 +143,7 @@ export default function AddScreen({ pills, setPills, setScreen }) {
                 accessibilityState={{ selected }}
                 style={{
                   flex: 1,
-                  minHeight: 78,
+                  minHeight: 46,
                   padding: 12,
                   marginRight: index === 0 ? 8 : 0,
                   borderRadius: 14,
@@ -156,6 +151,7 @@ export default function AddScreen({ pills, setPills, setScreen }) {
                   borderColor: selected ? "#4CAF50" : "#DDD",
                   backgroundColor: selected ? "#EAF6EB" : "#FAFAFA",
                   justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
                 <Text
@@ -165,9 +161,6 @@ export default function AddScreen({ pills, setPills, setScreen }) {
                   }}
                 >
                   {option.title}
-                </Text>
-                <Text style={{ color: "#777", fontSize: 12, marginTop: 4 }}>
-                  {option.description}
                 </Text>
               </TouchableOpacity>
             );
@@ -307,10 +300,7 @@ export default function AddScreen({ pills, setPills, setScreen }) {
         {!isScheduled && (
           <View>
             <Text style={{ marginBottom: 3, color: "#666", fontWeight: "600" }}>
-              Wanneer wil je dit doen?
-            </Text>
-            <Text style={{ marginBottom: 10, color: "#999", fontSize: 12 }}>
-              Optioneel — kies Geen als er geen deadline is.
+              Planning (optioneel)
             </Text>
 
             {["Geen", "Week", "Maand", "Datum"].map((t) => (
